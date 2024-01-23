@@ -36,3 +36,12 @@ services:
       traefik.http.routers.baikal-local.entrypoints: websecure
       traefik.http.routers.baikal-local.service: baikal
       traefik.http.routers.baikal-local.tls: true
+      # Traefik middleware required for iOS, see https://github.com/ckulka/baikal-docker/issues/37.
+      # When using a Traefik provider file (YAML/TOML) instead of these labels, remove the escape
+      # character from "*.redirectregex.replacement" - it's only needed in Docker Compose YAML files:
+      # redirectRegex:
+      #   replacement: "https://$1/dav/php/
+      traefik.http.middlewares.baikal-dav.redirectregex.regex: "https://(.*)/.well-known/(card|cal)dav"
+      traefik.http.middlewares.baikal-dav.redirectregex.replacement: "https://$$1/dav.php/"
+      traefik.http.middlewares.baikal-dav.redirectregex.permanent: "true"
+      traefik.http.routers.baikal.middlewares: "baikal-dav"
